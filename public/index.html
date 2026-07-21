@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentWall — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-left">
+      <div class="logo" id="logo-btn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00e599" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-4" stroke="#00e599" stroke-width="2.5"/>
+        </svg>
+        <span>AgentWall</span>
+      </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-view="dashboard">Dashboard</button>
+        <button class="nav-tab" data-view="policies">Policies</button>
+        <button class="nav-tab" data-view="verified">Verified</button>
+        <button class="nav-tab" data-view="scan">Manual Scan</button>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="status-badge" id="status-badge">
+        <div class="status-dot"></div>
+        <span id="status-text">Protected</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main">
+    <!-- Dashboard View -->
+    <div id="view-dashboard" class="view active">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Total Scans</div><div class="stat-value" id="stat-total">&mdash;</div></div>
+        <div class="stat-card"><div class="stat-label">Last 24h</div><div class="stat-value" id="stat-24h">&mdash;</div></div>
+        <div class="stat-card"><div class="stat-label">Blocked</div><div class="stat-value stat-red" id="stat-blocked">&mdash;</div></div>
+        <div class="stat-card"><div class="stat-label">Flagged</div><div class="stat-value stat-amber" id="stat-flagged">&mdash;</div></div>
+        <div class="stat-card"><div class="stat-label">Clean</div><div class="stat-value stat-green" id="stat-clean">&mdash;</div></div>
+      </div>
+      <div class="card top-signals-card" id="top-signals-card" style="display:none;margin-bottom:20px;">
+        <div class="card-header"><span>Top Detection Signals</span></div>
+        <div id="top-signals" class="top-signals"></div>
+      </div>
+      <div class="dashboard-grid">
+        <div class="card scan-list-card">
+          <div class="card-header">
+            <span>Recent Scans</span>
+            <select id="filter-risk">
+              <option value="">All Risks</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div id="scan-list" class="scan-list">
+            <div class="loading">Loading scans...</div>
+          </div>
+        </div>
+        <div class="card detail-card" id="detail-panel" style="display:none;">
+          <div class="card-header">
+            <span>Scan Details</span>
+            <button class="close-btn" id="close-detail-btn">&times;</button>
+          </div>
+          <div id="detail-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Policies View -->
+    <div id="view-policies" class="view">
+      <div class="section-header">
+        <div>
+          <h2>Protection Policies</h2>
+          <p class="subtitle">Configure how AgentWall handles flagged contributions.</p>
+        </div>
+        <button class="btn btn-primary" id="new-policy-btn">+ New Policy</button>
+      </div>
+      <div id="policy-list" class="policy-list">
+        <div class="loading">Loading policies...</div>
+      </div>
+      <div id="new-policy-form" class="card" style="display:none;">
+        <div class="card-header"><span>New Policy</span></div>
+        <div class="form-body">
+          <div class="form-row">
+            <label>Name</label>
+            <input type="text" id="policy-name" placeholder="e.g., Block Spray Bots">
+          </div>
+          <div class="form-row">
+            <label>Description</label>
+            <input type="text" id="policy-desc" placeholder="What this policy does">
+          </div>
+          <div class="form-row">
+            <label>Score Range</label>
+            <div class="range-inputs">
+              <input type="number" id="policy-min" value="60" min="0" max="100" placeholder="Min">
+              <span>to</span>
+              <input type="number" id="policy-max" value="100" min="0" max="100" placeholder="Max">
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Action</label>
+            <select id="policy-action">
+              <option value="close">Block (close PR)</option>
+              <option value="label">Label for review</option>
+              <option value="comment">Warning comment</option>
+              <option value="require">Require human attribution</option>
+              <option value="allow">Allow (bypass)</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Priority</label>
+            <input type="number" id="policy-priority" value="50" min="0" max="100">
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-secondary" id="cancel-policy-btn">Cancel</button>
+            <button class="btn btn-primary" id="create-policy-btn">Create Policy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verified Contributors View -->
+    <div id="view-verified" class="view">
+      <div class="section-header">
+        <div>
+          <h2>Verified Contributors</h2>
+          <p class="subtitle">Humans you've vouched for. They bypass scanning and enforcement entirely.</p>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="form-body">
+          <div class="form-row">
+            <label>GitHub Username</label>
+            <div class="input-group">
+              <input type="text" id="verify-login" placeholder="e.g., torvalds">
+              <button class="btn btn-primary" id="verify-add-btn">Verify</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Note (optional)</label>
+            <input type="text" id="verify-note" placeholder="e.g., met at conference, longtime contributor">
+          </div>
+        </div>
+      </div>
+      <div id="verified-list" class="policy-list">
+        <div class="loading">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Manual Scan View -->
+    <div id="view-scan" class="view">
+      <div class="section-header">
+        <div>
+          <h2>Manual Scan</h2>
+          <p class="subtitle">Scan any GitHub username to analyze their behavioral profile.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="form-body">
+          <div class="form-row">
+            <label>GitHub Username</label>
+            <div class="input-group">
+              <input type="text" id="scan-username" placeholder="e.g., octocat">
+              <button class="btn btn-primary" id="scan-btn">Scan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="scan-result" style="display:none;"></div>
+    </div>
+  </main>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

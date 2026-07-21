@@ -1,0 +1,31 @@
+{
+  "name": "agentwall",
+  "version": "1.0.0",
+  "description": "Agent firewall for open source repos: detect and block autonomous AI agent contributions",
+  "main": "src/index.js",
+  "license": "MIT",
+  "author": "Blindspot Labs",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test tests/signals.test.js tests/analyze-events.test.js tests/policies.test.js tests/queries.test.js tests/webhook-route.test.js",
+    "setup": "node scripts/setup.js",
+    "migrate": "node src/database/init.js"
+  },
+  "dependencies": {
+    "@octokit/auth-app": "^6.1.1",
+    "@octokit/rest": "^20.1.1",
+    "@octokit/webhooks": "^12.2.0",
+    "better-sqlite3": "^11.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.0",
+    "express": "^4.21.0",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.0",
+    "morgan": "^1.10.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
