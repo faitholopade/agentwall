@@ -157,7 +157,7 @@ agentwall/
 │   │   ├── api.js            # GitHub API calls (profile, events, PR actions)
 │   │   └── webhooks.js       # Webhook event handlers
 │   ├── engine/
-│   │   ├── signals.js        # 7 detection signal implementations
+│   │   ├── signals.js        # 10 detection signal implementations
 │   │   ├── analyzer.js       # Orchestrates the full analysis pipeline
 │   │   └── policies.js       # Policy evaluation and enforcement
 │   ├── routes/
@@ -174,7 +174,7 @@ agentwall/
 
 ## API Reference
 
-All endpoints are under `/api`. In development mode, no auth is required. In production, pass `Authorization: Bearer <DASHBOARD_SECRET>`.
+All endpoints are under `/api`. In development mode, no auth is required. In production, pass `Authorization: Bearer <DASHBOARD_SECRET>`. The dashboard itself prompts for the secret on first load in production (or open `/#key=<DASHBOARD_SECRET>` for a pre-authenticated link; the fragment never leaves the browser).
 
 ### Scans
 

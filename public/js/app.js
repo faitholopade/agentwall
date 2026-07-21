@@ -4,8 +4,19 @@
   "use strict";
 
   const API_BASE = "/api";
+  const AUTH_KEY = "agentwall_dashboard_secret";
   let currentView = "dashboard";
   let selectedScanId = null;
+
+  // Accept the dashboard secret via URL fragment (#key=...) so operators can
+  // open a pre-authenticated link; the fragment is never sent to the server.
+  (function initAuthFromHash() {
+    var m = window.location.hash.match(/^#key=(.+)$/);
+    if (m) {
+      sessionStorage.setItem(AUTH_KEY, decodeURIComponent(m[1]));
+      history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+  })();
 
   // ── DOM Ready ───────────────────────────────────────────────────
 
@@ -83,15 +94,24 @@
 
   // ── API Helpers ─────────────────────────────────────────────────
 
-  function api(path, options) {
+  function api(path, options, isRetry) {
     options = options || {};
     var headers = { "Content-Type": "application/json" };
+    var secret = sessionStorage.getItem(AUTH_KEY);
+    if (secret) headers["Authorization"] = "Bearer " + secret;
     if (options.headers) {
       for (var k in options.headers) headers[k] = options.headers[k];
     }
     options.headers = headers;
 
     return fetch(API_BASE + path, options).then(function (resp) {
+      if (resp.status === 401 && !isRetry) {
+        var entered = window.prompt("Enter the dashboard secret to continue:");
+        if (entered) {
+          sessionStorage.setItem(AUTH_KEY, entered.trim());
+          return api(path, { method: options.method, body: options.body }, true);
+        }
+      }
       if (!resp.ok) {
         return resp.json().catch(function () { return { error: "Request failed" }; }).then(function (err) {
           throw new Error(err.error || "HTTP " + resp.status);
