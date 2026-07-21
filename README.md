@@ -58,7 +58,7 @@ Set `MONITOR_ONLY=true` to trial AgentWall safely: every PR is scanned and score
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/yourusername/agentwall.git
+git clone https://github.com/faitholopade/agentwall.git
 cd agentwall
 npm install
 ```
